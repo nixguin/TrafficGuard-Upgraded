@@ -6,7 +6,7 @@ import NavDropdown from "react-bootstrap/NavDropdown";
 import { useNavigate } from "react-router-dom";
 import "../styles/layout.css";
 
-function CollapsibleExample() {
+function NavigationBar() {
   const navigate = useNavigate();
   const [expanded, setExpanded] = useState(false);
 
@@ -30,89 +30,71 @@ function CollapsibleExample() {
     navigate("/login");
   };
 
+  const handleSelect = () => {
+    setExpanded(false);
+  };
+
   return (
     <Navbar
-      collapseOnSelect
       expand="lg"
-      bg="white"
+      className="custom-navbar"
       fixed="top"
       expanded={expanded}
-      onToggle={(expanded) => setExpanded(expanded)}
+      onSelect={handleSelect}
     >
-      <Container fluid="lg">
-        <Navbar.Brand href="#home" className="d-flex align-items-center">
-          🏠 FrED IoT Home System
+      <Container>
+        <Navbar.Brand href="/" className="brand-logo">
+          <span className="brand-icon">🏠</span>
+          <span>FrED IoT Home System</span>
         </Navbar.Brand>
-        <Navbar.Toggle aria-controls="responsive-navbar-nav" />
-        <Navbar.Collapse id="responsive-navbar-nav">
+
+        <Navbar.Toggle
+          aria-controls="navbar-nav"
+          onClick={() => setExpanded(!expanded)}
+        />
+
+        <Navbar.Collapse id="navbar-nav">
           <Nav className="me-auto">
-            <Nav.Link
-              href="#iot-devices"
-              className="px-3"
-              onClick={() => setExpanded(false)}
-            >
-              IoT Devices
-            </Nav.Link>
-            <Nav.Link
-              href="#network-status"
-              className="px-3"
-              onClick={() => setExpanded(false)}
-            >
-              Network Status
-            </Nav.Link>
+            <Nav.Link href="#iot-devices">IoT Devices</Nav.Link>
+            <Nav.Link href="#network-status">Network Status</Nav.Link>
             <NavDropdown
               title="More Options"
-              id="collapsible-nav-dropdown"
-              className="custom-dropdown px-3"
-              align="end"
+              id="nav-dropdown"
+              onClick={(e) => {
+                if (e.target.classList.contains("dropdown-item")) {
+                  setExpanded(false);
+                }
+              }}
             >
-              <NavDropdown.Item
-                href="#settings"
-                onClick={() => setExpanded(false)}
-              >
-                Settings
-              </NavDropdown.Item>
-              <NavDropdown.Item
-                href="#activity-logs"
-                onClick={() => setExpanded(false)}
-              >
+              <NavDropdown.Item href="/settings">Settings</NavDropdown.Item>
+              <NavDropdown.Item href="/activity">
                 Activity Logs
               </NavDropdown.Item>
-              <NavDropdown.Item
-                href="#alerts"
-                onClick={() => setExpanded(false)}
-              >
-                Alerts
-              </NavDropdown.Item>
-              <NavDropdown.Divider />
-              <NavDropdown.Item
-                href="#support"
-                onClick={() => setExpanded(false)}
-              >
-                Support
-              </NavDropdown.Item>
+              <NavDropdown.Item href="/alerts">Alerts</NavDropdown.Item>
+              <NavDropdown.Item href="/support">Support</NavDropdown.Item>
             </NavDropdown>
           </Nav>
+
           <Nav>
             <NavDropdown
+              align="end"
               title={
                 <div className="notification-icon">
                   <span>🔔</span>
-                  <span>Notifications</span>
                   {notifications.length > 0 && (
                     <span className="notification-badge" />
                   )}
                 </div>
               }
               id="notifications-dropdown"
-              className="px-3"
-              align="end"
+              onClick={(e) => {
+                if (e.target.classList.contains("dropdown-item")) {
+                  setExpanded(false);
+                }
+              }}
             >
               {notifications.map((notification) => (
-                <NavDropdown.Item
-                  key={notification.id}
-                  onClick={() => setExpanded(false)}
-                >
+                <NavDropdown.Item key={notification.id}>
                   <div className="notification-message">
                     {notification.message}
                   </div>
@@ -120,22 +102,13 @@ function CollapsibleExample() {
                 </NavDropdown.Item>
               ))}
               <NavDropdown.Divider />
-              <NavDropdown.Item
-                href="#all-notifications"
-                onClick={() => setExpanded(false)}
-              >
+              <NavDropdown.Item className="view-all">
                 View All Notifications
               </NavDropdown.Item>
             </NavDropdown>
-            <Nav.Link
-              onClick={() => {
-                handleExit();
-                setExpanded(false);
-              }}
-              className="px-3"
-              style={{ cursor: "pointer" }}
-            >
-              Exit ↪
+
+            <Nav.Link className="exit-button" onClick={handleExit}>
+              Exit <span>↪</span>
             </Nav.Link>
           </Nav>
         </Navbar.Collapse>
@@ -144,4 +117,4 @@ function CollapsibleExample() {
   );
 }
 
-export default CollapsibleExample;
+export default NavigationBar;

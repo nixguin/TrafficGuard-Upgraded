@@ -20,7 +20,6 @@ const ProtectedRoute = ({ children }) => {
   const isAuthenticated = localStorage.getItem("authToken");
   // Check if router configuration exists
   const hasRouterConfig = localStorage.getItem("routerConfig");
-
   // Allow access if either authenticated or has router config
   if (isAuthenticated && hasRouterConfig) {
     return children;

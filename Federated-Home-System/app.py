@@ -7,23 +7,59 @@ app = Flask(__name__)
 CORS(app)  # Enable CORS to allow requests from the React app
 
 # Router connection details
-router_ip = "192.168.1.1"
-username = "root"
-password = "Paulo@123"
+router_ip = "192.168.50.1"   #192.168.50.1 for ASUS  192.168.50.1 for others
+username = "NotFound"   #NotFound for ASUS  root for others
+password = "NotFound"    #NotFound for ASUS  404 for others
 
-# Commands
+activeRouter = "None"
+
+
+
+# Mango Commands
+'''
 commands = {
-    "cpu_usage": "top -bn1 | grep 'CPU:'",
-    "memory_usage": "free",
-    "wireless_clients": "iw dev wlan0 station dump",  # Replace wlan0 with your interface name
-    "firewall_rules": "iptables -L -v",
-    "uptime_load": "uptime",
-    "network_config": "ifconfig",
-    "device_list": "cat /tmp/dhcp.leases",
-    "log_output": "logread",
-    "bandwidth": "cat /proc/net/dev"
+    "cpu_usage": "top -bn1 | grep 'CPU:'",  #!
+    "memory_usage": "free",  #!
+    "wireless_clients": "iw dev phy0-ap0 station dump",  # Replace with wlan0 for mango, phy0-ap0 is showing wireless clients
+    "firewall_rules": "iptables -L -v", #!
+    "uptime_load": "uptime", #!
+    "network_config": "ifconfig", #!
+    "device_list": "cat /tmp/dhcp.leases", #!
+    "log_output": "logread", #!
+    "bandwidth": "cat /proc/net/dev" 
 }
+'''
 
+# Beryl Commands
+'''
+commands = {
+    "cpu_usage": "top -bn1 | grep 'CPU:'",  #!
+    "memory_usage": "free",  #!
+    "wireless_clients": "iw dev phy1-ap0 station dump",  # Replace with phy1-ap0 for Beryl
+    "firewall_rules": "iptables -L -v", #!
+    "uptime_load": "uptime", #!
+    "network_config": "ifconfig", #!
+    "device_list": "cat /tmp/dhcp.leases", #!
+    "log_output": "logread", #!
+    "bandwidth": "cat /proc/net/dev" 
+}
+'''
+
+# ASUS Commands
+#'''
+commands = {
+    "cpu_usage": "cat /proc/stat | head -n 1",  # CPU usage statistics
+    "memory_usage": "cat /proc/meminfo | head -n 5",  # Memory usage details
+    "wireless_clients_2.4GHz": "wl -i eth1 assoclist",  # Connected wireless clients (2.4GHz)
+    "wireless_clients_5GHz": "wl -i eth2 assoclist",  # Connected wireless clients (5GHz)
+    "firewall_rules": "iptables -L -v",  # Lists firewall rules
+    "uptime_load": "uptime",  # System uptime and load average
+    "network_config": "ip addr show",  # Network interfaces and IP addresses
+    "device_list": "cat /tmp/dhcp.leases",  # List of DHCP clients (connected devices)
+    "log_output": "logread",  # System logs
+    "bandwidth": "cat /proc/net/dev"  # Network interface traffic statistics
+}
+#'''
 
 @app.route('/api/data', methods=['GET'])
 def get_data():
@@ -119,9 +155,9 @@ def get_wireless_clients():
     print('Fetching wireless clients...')
     try:
         # Attempt using iwinfo as an alternative
-        wireless_clients = get_router_data_via_ssh(router_ip, username, password, "iwinfo wlan0 assoclist")
+        wireless_clients = get_router_data_via_ssh(router_ip, username, password, "iwinfo phy1-ap0 assoclist") #switch wlan0 for mango, phy1-ap0 for Beryl
         if not wireless_clients.strip():  # Fallback if no data is returned
-            wireless_clients = get_router_data_via_ssh(router_ip, username, password, "iw dev wlan0 station dump")
+            wireless_clients = get_router_data_via_ssh(router_ip, username, password, "iw dev phy1-ap0 station dump") #switch wlan0 for mango, phy1-ap0 for Beryl
         return jsonify({"status": "Success", "wireless_clients": wireless_clients})
     except Exception as e:
         return jsonify({"status": "Error", "error": str(e)})

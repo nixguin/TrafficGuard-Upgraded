@@ -16,9 +16,9 @@ def get_router_data_via_ssh(router_ip, username, password, command):
 
 
 # Variables
-router_ip = "192.168.1.1"
-username = "root"
-password = "Paulo@123"
+router_ip = "192.168.50.1"
+username = "NotFound" #root for others
+password = "NotFound" #404 for others
 get_log = "logread"
 get_device_list = "cat /tmp/dhcp.leases"
 get_general_info = "cat /proc/net/dev"

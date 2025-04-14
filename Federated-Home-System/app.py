@@ -1,74 +1,98 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from getRouterData import get_router_data_via_ssh
 import sqlite3
+import time
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS to allow requests from the React app
 
 # Router connection details
-router_ip = "192.168.50.1"   #192.168.50.1 for ASUS  192.168.50.1 for others
+router_ip = "192.168.50.1"   #192.168.50.1 for ASUS  192.168.1.1 for others
 username = "NotFound"   #NotFound for ASUS  root for others
 password = "NotFound"    #NotFound for ASUS  404 for others
 
-activeRouter = "None"
 
 
+
+router_commands = {
 
 # Mango Commands
-'''
-commands = {
-    "cpu_usage": "top -bn1 | grep 'CPU:'",  #!
-    "memory_usage": "free",  #!
-    "wireless_clients": "iw dev phy0-ap0 station dump",  # Replace with wlan0 for mango, phy0-ap0 is showing wireless clients
-    "firewall_rules": "iptables -L -v", #!
-    "uptime_load": "uptime", #!
-    "network_config": "ifconfig", #!
-    "device_list": "cat /tmp/dhcp.leases", #!
-    "log_output": "logread", #!
-    "bandwidth": "cat /proc/net/dev" 
-}
-'''
+    "MANGO" : {
+        "cpu_usage": "top -bn1 | grep 'CPU:'",  #!
+        "memory_usage": "free",  #!
+        "wireless_clients": "iw dev phy0-ap0 station dump",  # Replace with wlan0 for mango, phy0-ap0 is showing wireless clients
+        "firewall_rules": "iptables -L -v", #!
+        "uptime_load": "uptime", #!
+        "network_config": "ifconfig", #!
+        "device_list": "cat /tmp/dhcp.leases", #!
+        "log_output": "logread", #!
+        "bandwidth": "cat /proc/net/dev" 
+},
+
 
 # Beryl Commands
-'''
-commands = {
-    "cpu_usage": "top -bn1 | grep 'CPU:'",  #!
-    "memory_usage": "free",  #!
-    "wireless_clients": "iw dev phy1-ap0 station dump",  # Replace with phy1-ap0 for Beryl
-    "firewall_rules": "iptables -L -v", #!
-    "uptime_load": "uptime", #!
-    "network_config": "ifconfig", #!
-    "device_list": "cat /tmp/dhcp.leases", #!
-    "log_output": "logread", #!
-    "bandwidth": "cat /proc/net/dev" 
-}
-'''
+    "Beryl" : {
+        "cpu_usage": "top -bn1 | grep 'CPU:'",  #!
+        "memory_usage": "free",  #!
+        "wireless_clients": "iw dev phy1-ap0 station dump",  # Replace with phy1-ap0 for Beryl
+        "firewall_rules": "iptables -L -v", #!
+        "uptime_load": "uptime", #!
+        "network_config": "ifconfig", #!
+        "device_list": "cat /tmp/dhcp.leases", #!
+        "log_output": "logread", #!
+        "bandwidth": "cat /proc/net/dev" 
+    },
 
-# ASUS Commands
-#'''
-commands = {
-    "cpu_usage": "cat /proc/stat | head -n 1",  # CPU usage statistics
-    "memory_usage": "cat /proc/meminfo | head -n 5",  # Memory usage details
-    "wireless_clients_2.4GHz": "wl -i eth1 assoclist",  # Connected wireless clients (2.4GHz)
-    "wireless_clients_5GHz": "wl -i eth2 assoclist",  # Connected wireless clients (5GHz)
-    "firewall_rules": "iptables -L -v",  # Lists firewall rules
-    "uptime_load": "uptime",  # System uptime and load average
-    "network_config": "ip addr show",  # Network interfaces and IP addresses
-    "device_list": "cat /tmp/dhcp.leases",  # List of DHCP clients (connected devices)
-    "log_output": "logread",  # System logs
-    "bandwidth": "cat /proc/net/dev"  # Network interface traffic statistics
+
+ #ASUS Commands
+    "ASUS" : {
+       "cpu_usage": "top -bn1 | grep 'CPU:'",  # CPU usage statistics  {Works}
+        "memory_usage": "free",  # Memory usage details  {Works}
+        "wireless_clients": "cat /proc/net/arp",  # Connected wireless clients {Works}
+        "firewall_rules": "iptables -L -v",  # Lists firewall rules  {Works}
+        "uptime_load": "uptime",  # System uptime and load average  {Works}
+        "network_config": "ifconfig",  # Network interfaces and IP addresses  {Works}
+        "device_list": "ip neigh",  # List of DHCP clients (connected devices)  {Works}
+        "log_output": "cat /tmp/syslog.log",  # System logs
+        "bandwidth": "cat /proc/net/dev"  # Network interface traffic statistics  {Works}
+    }
 }
-#'''
+
+current_router = "ASUS"
+activeRouter = router_commands[current_router]
+
+@app.route('/api/set_router', methods=['POST'])
+def set_router():
+    data = request.get_json()
+    selected_router = data.get('router')
+
+    if not selected_router:
+        return jsonify({'error': 'No router specified'}), 400
+
+    if selected_router not in router_commands:
+        return jsonify({'error': 'Invalid router selected'}), 400
+
+     #You can store this in a session, global var, database, etc.
+    global current_router
+    current_router = selected_router
+
+    return jsonify({'message': f'Router set to {selected_router}'}), 200
+
 
 @app.route('/api/data', methods=['GET'])
 def get_data():
     print('Request received!')
     try:
         # Fetch router data
-        network_log = get_router_data_via_ssh(router_ip, username, password, commands["log_output"])
-        device_list = get_router_data_via_ssh(router_ip, username, password, commands["device_list"])
-        general_info = get_router_data_via_ssh(router_ip, username, password, commands["network_config"])
+        router_cmds = router_commands[current_router]
+        time.sleep(1)
+        network_log = get_router_data_via_ssh(router_ip, username, password, router_cmds["log_output"])
+        time.sleep(1)
+        device_list = get_router_data_via_ssh(router_ip, username, password, router_cmds["device_list"])
+        time.sleep(1)
+        general_info = get_router_data_via_ssh(router_ip, username, password, router_cmds["network_config"])
+        time.sleep(1)
 
         # Format the data to send as a JSON response
         data = {
@@ -95,8 +119,11 @@ def get_data():
 @app.route('/api/logs', methods=['GET'])
 def get_logs():
     print('Fetching logs...')
+    router_cmds = router_commands[current_router]
+    time.sleep(1)
     try:
-        log_output = get_router_data_via_ssh(router_ip, username, password, commands["log_output"])
+        log_output = get_router_data_via_ssh(router_ip, username, password, router_cmds["log_output"])
+        time.sleep(1)
         return jsonify({"status": "Success", "logs": log_output})
     except Exception as e:
         return jsonify({"status": "Error", "error": str(e)})
@@ -105,8 +132,10 @@ def get_logs():
 @app.route('/api/devices', methods=['GET'])
 def get_devices():
     print('Fetching device list...')
+    router_cmds = router_commands[current_router]
     try:
-        device_list = get_router_data_via_ssh(router_ip, username, password, commands["device_list"])
+        device_list = get_router_data_via_ssh(router_ip, username, password, router_cmds["device_list"])
+        time.sleep(1)
         devices = []
         for line in device_list.strip().split("\n"):
             parts = line.split()
@@ -125,10 +154,13 @@ def get_devices():
 @app.route('/api/cpu_memory', methods=['GET'])
 def get_cpu_memory():
     print('Fetching CPU and memory usage...')
+    router_cmds = router_commands[current_router]
     try:
         # Fetch CPU and memory usage data
-        cpu_output = get_router_data_via_ssh(router_ip, username, password, commands["cpu_usage"])
-        memory_output = get_router_data_via_ssh(router_ip, username, password, commands["memory_usage"])
+        cpu_output = get_router_data_via_ssh(router_ip, username, password, router_cmds["cpu_usage"])
+        time.sleep(1)
+        memory_output = get_router_data_via_ssh(router_ip, username, password, router_cmds["memory_usage"])
+        time.sleep(1)
 
         # Parse CPU usage data
         cpu_data = {}
@@ -153,12 +185,17 @@ def get_cpu_memory():
 @app.route('/api/wireless_clients', methods=['GET'])
 def get_wireless_clients():
     print('Fetching wireless clients...')
+    router_cmds = router_commands[current_router]
     try:
         # Attempt using iwinfo as an alternative
-        wireless_clients = get_router_data_via_ssh(router_ip, username, password, "iwinfo phy1-ap0 assoclist") #switch wlan0 for mango, phy1-ap0 for Beryl
+        wireless_clients = get_router_data_via_ssh(router_ip, username, password, router_cmds["wireless_clients"]) #switch wlan0 for mango, phy1-ap0 for Beryl
         if not wireless_clients.strip():  # Fallback if no data is returned
             wireless_clients = get_router_data_via_ssh(router_ip, username, password, "iw dev phy1-ap0 station dump") #switch wlan0 for mango, phy1-ap0 for Beryl
-        return jsonify({"status": "Success", "wireless_clients": wireless_clients})
+        
+        if wireless_clients.strip():
+            return jsonify({"status": "Success", "wireless_clients": wireless_clients})
+        else:
+            return jsonify({"status": "Error", "message": "No wireless clients found."})
     except Exception as e:
         return jsonify({"status": "Error", "error": str(e)})
 
@@ -166,6 +203,7 @@ def get_wireless_clients():
 @app.route('/api/firewall_rules', methods=['GET'])
 def get_firewall_rules():
     print('Fetching firewall rules...')
+    router_cmds = router_commands[current_router]
     try:
         # Attempt using iptables and fallback to reading firewall config
         firewall_rules = get_router_data_via_ssh(router_ip, username, password, "iptables -L -v")
@@ -179,8 +217,9 @@ def get_firewall_rules():
 @app.route('/api/uptime_load', methods=['GET'])
 def get_uptime_load():
     print('Fetching uptime and load...')
+    router_cmds = router_commands[current_router]
     try:
-        uptime_load = get_router_data_via_ssh(router_ip, username, password, commands["uptime_load"])
+        uptime_load = get_router_data_via_ssh(router_ip, username, password, router_cmds["uptime_load"])
         return jsonify({"status": "Success", "uptime_load": uptime_load})
     except Exception as e:
         return jsonify({"status": "Error", "error": str(e)})
@@ -189,8 +228,10 @@ def get_uptime_load():
 @app.route('/api/network_config', methods=['GET'])
 def get_network_config():
     print('Fetching network configuration...')
+    router_cmds = router_commands[current_router]
     try:
-        network_config = get_router_data_via_ssh(router_ip, username, password, commands["network_config"])
+        network_config = get_router_data_via_ssh(router_ip, username, password, router_cmds["network_config"])
+        time.sleep(1)
         return jsonify({"status": "Success", "network_config": network_config})
     except Exception as e:
         return jsonify({"status": "Error", "error": str(e)})
@@ -228,9 +269,11 @@ def save_data_to_db(data):
 @app.route('/api/bandwidth', methods=['GET'])
 def get_bandwidth():
     print('Fetching bandwidth data...')
+    router_cmds = router_commands[current_router]
     try:
         # Execute the bandwidth command via SSH
-        bandwidth_output = get_router_data_via_ssh(router_ip, username, password, commands["bandwidth"])
+        bandwidth_output = get_router_data_via_ssh(router_ip, username, password, router_cmds["bandwidth"])
+        time.sleep(1)
 
         # Parse and format the output from /proc/net/dev
         lines = bandwidth_output.strip().split("\n")[2:]  # Skip the header lines
@@ -238,10 +281,14 @@ def get_bandwidth():
         for line in lines:
             parts = line.split()
             if len(parts) >= 10:
-                bandwidth_data.append({
-                    "interface": parts[0].strip(':'),  # Interface name
-                    "receive_bytes": int(parts[1]),  # Bytes received
-                    "transmit_bytes": int(parts[9])  # Bytes transmitted
+                receive = int(parts[1])
+                transmit = int(parts[9])
+
+                if receive != 0 and transmit != 0:
+                    bandwidth_data.append({
+                        "interface": parts[0].strip(':'),  # Interface name
+                        "receive_bytes": int(parts[1]),  # Bytes received
+                        "transmit_bytes": int(parts[9])  # Bytes transmitted
                 })
 
         # Return the formatted bandwidth data

@@ -15,7 +15,7 @@ commands = {
     "firewall_rules": "iptables -L -v",  # Lists firewall rules
     "uptime_load": "uptime",  # System uptime and load average
     "network_config": "ip addr show",  # Network interfaces and IP addresses
-    "device_list": "cat /tmp/dhcp.leases",  # List of DHCP clients (connected devices)
+    "device_list": "cat /tmp/clientlist.json",  # List of DHCP clients (connected devices)
     "log_output": "logread",  # System logs
     "bandwidth": "cat /proc/net/dev"  # Network interface traffic statistics
 }

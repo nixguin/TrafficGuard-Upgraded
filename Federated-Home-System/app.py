@@ -7,18 +7,14 @@ import time
 app = Flask(__name__)
 CORS(app)  # Enable CORS to allow requests from the React app
 
-# Router connection details
-router_ip = "192.168.50.1"   #192.168.50.1 for ASUS  192.168.1.1 for others
-username = "NotFound"   #NotFound for ASUS  root for others
-password = "NotFound"    #NotFound for ASUS  404 for others
-
-
-
 
 router_commands = {
 
 # Mango Commands
     "MANGO" : {
+        "router_ip": "192.168.1.1",
+        "username": "root",
+        "password": "404",
         "cpu_usage": "top -bn1 | grep 'CPU:'",  #!
         "memory_usage": "free",  #!
         "wireless_clients": "iw dev phy0-ap0 station dump",  # Replace with wlan0 for mango, phy0-ap0 is showing wireless clients
@@ -33,6 +29,9 @@ router_commands = {
 
 # Beryl Commands
     "Beryl" : {
+        "router_ip": "192.168.1.1",
+        "username": "root",
+        "password": "404",
         "cpu_usage": "top -bn1 | grep 'CPU:'",  #!
         "memory_usage": "free",  #!
         "wireless_clients": "iw dev phy1-ap0 station dump",  # Replace with phy1-ap0 for Beryl
@@ -47,6 +46,9 @@ router_commands = {
 
  #ASUS Commands
     "ASUS" : {
+        "router_ip": "192.168.50.1",
+        "username": "NotFound",
+        "password": "NotFound",
        "cpu_usage": "top -bn1 | grep 'CPU:'",  # CPU usage statistics  {Works}
         "memory_usage": "free",  # Memory usage details  {Works}
         "wireless_clients": "cat /proc/net/arp",  # Connected wireless clients {Works}
@@ -54,13 +56,19 @@ router_commands = {
         "uptime_load": "uptime",  # System uptime and load average  {Works}
         "network_config": "ifconfig",  # Network interfaces and IP addresses  {Works}
         "device_list": "ip neigh",  # List of DHCP clients (connected devices)  {Works}
-        "log_output": "cat /tmp/syslog.log",  # System logs
+        "log_output": "cat /tmp/syslog.log",  # System logs {Works, but  maybe filter}
         "bandwidth": "cat /proc/net/dev"  # Network interface traffic statistics  {Works}
     }
 }
 
 current_router = "ASUS"
 activeRouter = router_commands[current_router]
+
+# Router connection details
+router_cmds = router_commands[current_router]
+router_ip = router_cmds["router_ip"]  
+username = router_cmds["username"]   
+password = router_cmds["password"]    
 
 @app.route('/api/set_router', methods=['POST'])
 def set_router():

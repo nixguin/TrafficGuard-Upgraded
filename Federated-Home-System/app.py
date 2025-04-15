@@ -17,7 +17,7 @@ router_commands = {
         "password": "404",
         "cpu_usage": "top -bn1 | grep 'CPU:'",  #!
         "memory_usage": "free",  #!
-        "wireless_clients": "iw dev phy0-ap0 station dump",  # Replace with wlan0 for mango, phy0-ap0 is showing wireless clients
+        "wireless_clients": "iw dev phy0-ap0 station dump",  
         "firewall_rules": "iptables -L -v", #!
         "uptime_load": "uptime", #!
         "network_config": "ifconfig", #!
@@ -28,13 +28,13 @@ router_commands = {
 
 
 # Beryl Commands
-    "Beryl" : {
+    "BERYL" : {
         "router_ip": "192.168.1.1",
         "username": "root",
         "password": "404",
         "cpu_usage": "top -bn1 | grep 'CPU:'",  #!
         "memory_usage": "free",  #!
-        "wireless_clients": "iw dev phy1-ap0 station dump",  # Replace with phy1-ap0 for Beryl
+        "wireless_clients": "iw dev phy1-ap0 station dump",  
         "firewall_rules": "iptables -L -v", #!
         "uptime_load": "uptime", #!
         "network_config": "ifconfig", #!
@@ -61,7 +61,7 @@ router_commands = {
     }
 }
 
-current_router = "ASUS"
+current_router = "BERYL"
 activeRouter = router_commands[current_router]
 
 # Router connection details

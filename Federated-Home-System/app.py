@@ -61,6 +61,7 @@ router_commands = {
     }
 }
 
+#Remember to change info in getRouterData as well
 current_router = "BERYL"
 activeRouter = router_commands[current_router]
 

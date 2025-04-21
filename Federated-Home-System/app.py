@@ -15,15 +15,15 @@ router_commands = {
         "router_ip": "192.168.1.1",
         "username": "root",
         "password": "404",
-        "cpu_usage": "top -bn1 | grep 'CPU:'",  #!
-        "memory_usage": "free",  #!
-        "wireless_clients": "iw dev phy0-ap0 station dump",  
-        "firewall_rules": "iptables -L -v", #!
-        "uptime_load": "uptime", #!
-        "network_config": "ifconfig", #!
-        "device_list": "cat /tmp/dhcp.leases", #!
-        "log_output": "logread", #!
-        "bandwidth": "cat /proc/net/dev" 
+        "cpu_usage": "top -bn1 | grep 'CPU:'",  # {Works}
+        "memory_usage": "free",  # {Works}
+        "wireless_clients": "iw dev phy0-ap0 station dump", # {Works} 
+        "firewall_rules": "iptables -L -v", # {Works}
+        "uptime_load": "uptime", # {Works}
+        "network_config": "ifconfig", # {Works}
+        "device_list": "cat /tmp/dhcp.leases", # {Works}
+        "log_output": "logread", # {Works}
+        "bandwidth": "cat /proc/net/dev" # {Works}
 },
 
 
@@ -32,15 +32,15 @@ router_commands = {
         "router_ip": "192.168.1.1",
         "username": "root",
         "password": "404",
-        "cpu_usage": "top -bn1 | grep 'CPU:'",  #!
-        "memory_usage": "free",  #!
-        "wireless_clients": "iw dev phy1-ap0 station dump",  
-        "firewall_rules": "iptables -L -v", #!
-        "uptime_load": "uptime", #!
-        "network_config": "ifconfig", #!
-        "device_list": "cat /tmp/dhcp.leases", #!
-        "log_output": "logread", #!
-        "bandwidth": "cat /proc/net/dev" 
+        "cpu_usage": "top -bn1 | grep 'CPU:'",  # {Works}
+        "memory_usage": "free",  # {Works}
+        "wireless_clients": "iw dev phy1-ap0 station dump", # {Works} 
+        "firewall_rules": "iptables -L -v", # {Works}
+        "uptime_load": "uptime", # {Works}
+        "network_config": "ifconfig", # {Works}
+        "device_list": "cat /tmp/dhcp.leases", # {Works}
+        "log_output": "logread", # {Works}
+        "bandwidth": "cat /proc/net/dev" # {Works}
     },
 
 
@@ -62,7 +62,7 @@ router_commands = {
 }
 
 #Remember to change info in getRouterData as well
-current_router = "BERYL"
+current_router = "ASUS" # MANGO , BERYL , ASUS
 activeRouter = router_commands[current_router]
 
 # Router connection details

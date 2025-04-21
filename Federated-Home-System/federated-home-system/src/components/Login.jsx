@@ -13,14 +13,14 @@ const ROUTER_CONFIGS = {
     id: "mango-001",
     ip: "192.168.1.1",
     defaultUsername: "root",
-    defaultPassword: "Paulo@123",
+    defaultPassword: "404",
   },
   beryl: {
     name: "GLI Beryl",
     id: "beryl-001",
     ip: "192.168.1.1",
     defaultUsername: "root",
-    defaultPassword: "Paulo@123",
+    defaultPassword: "404",
   },
 };
 
@@ -100,12 +100,31 @@ function Login() {
           info: { message: "Using default router configuration" },
         })
       );
+      navigate("/");
     } else {
       // Store selected router configuration
       localStorage.setItem("routerConfig", JSON.stringify(routerConfig));
+
+       // Tell backend to set the router
+    fetch("http://localhost:5000/api/set_router", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ router: selectedRouterValue.toUpperCase() }), // match Flask keys
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Router set on backend:", data);
+        navigate("/");
+      })
+      .catch((err) => {
+        console.error("Failed to set router on backend:", err);
+        navigate("/"); // fallback in case of failure
+      });
     }
 
-    navigate("/");
+    
   };
 
   return (

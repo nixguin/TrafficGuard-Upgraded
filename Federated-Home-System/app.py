@@ -61,15 +61,7 @@ router_commands = {
     }
 }
 
-#Remember to change info in getRouterData as well
-current_router = "ASUS" # MANGO , BERYL , ASUS
-activeRouter = router_commands[current_router]
-
-# Router connection details
-router_cmds = router_commands[current_router]
-router_ip = router_cmds["router_ip"]  
-username = router_cmds["username"]   
-password = router_cmds["password"]    
+  
 
 @app.route('/api/set_router', methods=['POST'])
 def set_router():
@@ -87,6 +79,16 @@ def set_router():
     current_router = selected_router
 
     return jsonify({'message': f'Router set to {selected_router}'}), 200
+
+#Remember to change info in getRouterData as well
+current_router = "BERYL" # MANGO , BERYL , ASUS
+activeRouter = router_commands[current_router]
+
+# Router connection details
+router_cmds = router_commands[current_router]
+router_ip = router_cmds["router_ip"]  
+username = router_cmds["username"]   
+password = router_cmds["password"]  
 
 
 @app.route('/api/data', methods=['GET'])
